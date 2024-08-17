@@ -1,0 +1,276 @@
+.interview-container {
+    display: flex;
+    width: 100%;
+    height: 100vh;
+    box-sizing: border-box;
+}
+
+.interview-main-content {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    padding: 20px;
+    background-color: #f5f5f5;
+    box-sizing: border-box;
+    justify-content: space-between;
+}
+
+.interview-header {
+    margin-bottom: 20px;
+    /* display: flex; */
+    /* flex-direction: column; */
+}
+
+.video__container {
+    position: relative;
+    width: 100%;
+    height: 300px;
+    margin-bottom: 10px;
+}
+
+.video-player {
+    width: 100%;
+    height: 100%;
+    background-color: #000;
+}
+
+.translation-results {
+    flex-grow: 1;
+    background-color: #f1f1f1;
+    padding: 10px;
+    border-radius: 4px;
+    height: 200px;
+    overflow-y: auto;
+    box-shadow: inset 0px 0px 5px rgba(0,0,0,0.1);
+}
+
+.checklist-section {
+    width: 100%;
+    background-color: #f9f9f9;
+    padding: 10px;
+    border-radius: 4px;
+    box-shadow: 0px 0px 5px rgba(0,0,0,0.1);
+}
+
+.checklist-section h4 {
+    margin-bottom: 10px;
+    font-weight: bold;
+}
+
+.checklist-item {
+    display: flex;
+    align-items: center;
+    margin: 10px 0;
+}
+
+.checklist-item input[type="checkbox"] {
+    margin-right: 10px;
+}
+
+.checklist-item label {
+    flex-grow: 1;
+    line-height: 1.4;
+}
+
+.checklist-item .edit-btn {
+    background: none;
+    border: none;
+    cursor: pointer;
+    font-size: 18px;
+    color: #00aaff;
+}
+
+.interview-chat-panel {
+    width: 40%;
+    padding: 20px;
+    box-sizing: border-box;
+    display: flex;
+    flex-direction: column;
+    border-left: 1px solid #ddd;
+}
+
+.tabs {
+    display: flex;
+    border-bottom: 1px solid #ddd;
+}
+
+.tab {
+    flex: 1;
+    padding: 10px;
+    text-align: center;
+    cursor: pointer;
+    background-color: #f9f9f9;
+    border: 1px solid #ddd;
+    border-bottom: none;
+}
+
+.tab.active {
+    background-color: #fff;
+    border-color: #ddd;
+    border-bottom: 1px solid #fff;
+}
+
+.chat-content {
+    flex-grow: 1;
+    margin-top: 20px;
+    overflow-y: auto;
+    display: flex;
+    flex-direction: column;
+}
+
+.chat-bubble {
+    padding: 10px 20px;
+    margin: 10px 0;
+    border-radius: 20px;
+    max-width: 70%;
+}
+
+.chat-bubble.other {
+    background-color: #add8e6;
+    align-self: flex-start;
+}
+
+.chat-bubble.self {
+    background-color: #007bff;
+    align-self: flex-end;
+    color: #fff;
+}
+
+.chat-input {
+    display: flex;
+    align-items: center;
+    padding: 10px;
+    border-top: 1px solid #ddd;
+    background-color: #f9f9f9;
+}
+
+.chat-input input {
+    flex: 1;
+    padding: 10px;
+    border: 1px solid #ddd;
+    border-radius: 5px;
+    margin-right: 10px;
+}
+
+.send-btn {
+    background-color: #007bff;
+    color: #fff;
+    border: none;
+    padding: 10px 20px;
+    border-radius: 5px;
+    cursor: pointer;
+}
+
+.send-btn:hover {
+    background-color: #0056b3;
+}
+
+
+.butt {
+    background-color: #007bff;
+    color: #fff;
+    border: none;
+    padding: 10px 20px;
+    border-radius: 5px;
+    margin: 5px;
+    cursor: pointer;
+}
+
+.butt.active {
+    background-color: #0056b3;
+}
+
+.butt:hover {
+    background-color: #0056b3;
+}
+
+
+.interview-conntainer {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    width: 100%;
+    height: 100vh;
+    background-color: #f0f0f0;
+    padding: 20px;
+}
+
+.video__container {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    position: relative;
+    background: black;
+    cursor: pointer;
+    border-radius: 10px;
+    overflow: hidden;
+    transition: width 0.3s, height 0.3s;
+    height: 450px;
+}
+
+.video__container.expanded {
+    width: 100%;
+    height: 100%;
+}
+
+.video-player {
+    width: 100%;
+    height: 100%;
+}
+
+.stream__actions {
+    display: flex;
+    justify-content: center;
+    gap: 10px;
+}
+
+.stream__actions button {
+    padding: 10px 15px;
+    background-color: #007bff;
+    color: white;
+    border: none;
+    border-radius: 5px;
+    cursor: pointer;
+    transition: background-color 0.3s;
+}
+
+.stream__actions button.active {
+    background-color: #28a745;
+}
+
+.stream__actions button:hover {
+    background-color: #0056b3;
+}
+
+.stream__actions button#leave-btn {
+    background-color: #dc3545;
+}
+
+.stream__actions button#leave-btn:hover {
+    background-color: #c82333;
+}
+
+#display-frame {
+    display: none;
+    width: 100%;
+    height: 100%;
+    background-color: #000;
+    position: absolute;
+    top: 0;
+    left: 0;
+    z-index: 10;
+    overflow: hidden;
+    border-radius: 10px;
+}
+
+@media (max-width: 768px) {
+    .video__container {
+        width: 100%;
+        height: 200px;
+    }
+
+    .streams__container {
+        flex-direction: column;
+        align-items: center;
+    }
+}

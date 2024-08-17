@@ -1,0 +1,85 @@
+.interview-list-container {
+    padding: 20px;
+    font-family: Arial, sans-serif;
+}
+
+.search-box {
+    display: flex;
+    margin-bottom: 20px;
+}
+
+.search-box input {
+    flex: 1;
+    padding: 8px;
+    font-size: 16px;
+    border: 1px solid #ccc;
+    border-radius: 4px;
+}
+
+.search-box button {
+    padding: 8px 16px;
+    margin-left: 10px;
+    font-size: 16px;
+    background-color: #ccc;
+    border: 1px solid #ccc;
+    border-radius: 4px;
+    cursor: pointer;
+}
+
+.interview-item {
+    display: flex;
+    align-items: center;
+    margin-bottom: 20px;
+    padding: 10px;
+    border-bottom: 1px solid #ccc;
+}
+
+.interview-image img {
+    width: 100px;
+    height: 100px;
+    object-fit: cover;
+    border-radius: 50%;
+}
+
+.interview-info {
+    flex: 1;
+    margin-left: 20px;
+}
+
+.interview-date {
+    font-size: 14px;
+    color: #999;
+}
+
+.interview-username {
+    font-size: 18px;
+    font-weight: bold;
+}
+
+.interview-movie-title {
+    font-size: 16px;
+    color: #555;
+}
+
+.edit-icon button {
+    background: none;
+    border: none;
+    font-size: 24px;
+    cursor: pointer;
+}
+
+.pagination {
+    display: flex;
+    justify-content: center;
+    margin-top: 20px;
+}
+
+.pagination-button {
+    padding: 10px 20px;
+    margin: 0 5px;
+    font-size: 16px;
+    background-color: #00cccc;
+    border: none;
+    border-radius: 5px;
+    cursor: pointer;
+}
