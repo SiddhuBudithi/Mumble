@@ -1,32 +1,62 @@
 import React, { useEffect, useRef, useState } from "react";
 import AgoraRTC from "agora-rtc-sdk-ng";
-import "./CSS/NewInterviewComponent.css";
+// import axios from "axios";
+import "./CSS/demo.css"
 
-const APP_ID = "3c5bdbbea07141098c76dac3603f312e";
+const APP_ID = '69261f031ec443fa8fee25a18a269fb0';
+// const GOOGLE_TRANSLATE_API_KEY = "YOUR_GOOGLE_TRANSLATE_API_KEY";
 
-const NewInterviewComponent = ({ uid, displayName, roomId, client, setClient }) => {
-    const [localTracks, setLocalTracks] = useState([]);
-    const [remoteUsers, setRemoteUsers] = useState({});
-    const [localScreenTracks, setLocalScreenTracks] = useState(null);
-    const [sharingScreen, setSharingScreen] = useState(false);
-    const [userIdInDisplayFrame, setUserIdInDisplayFrame] = useState(null);
 
-    const streamsContainerRef = useRef(null);
-    const displayFrameRef = useRef(null);
+const NewInterviewComponent = ({
+  uid,
+  displayName,
+  roomId,
+  client,
+  setClient,
+}) => {
+  const [localTracks, setLocalTracks] = useState([]);
+  const [remoteUsers, setRemoteUsers] = useState({});
+  const [localScreenTracks, setLocalScreenTracks] = useState(null);
+  const [sharingScreen, setSharingScreen] = useState(false);
+  const [userIdInDisplayFrame, setUserIdInDisplayFrame] = useState(null);
+  const [chatMessages, setChatMessages] = useState([]);
+  const [translation, setTranslation] = useState([]);
+  const [inputText, setInputText] = useState("");
+  const [liveTranslation, setLiveTranslation] = useState("");
+
+  const chatInputRef = useRef(null);
+  const streamsContainerRef = useRef(null);
+  const displayFrameRef = useRef(null);
+
+  useEffect(() => {
+    // Simulate receiving live translation from an API or service
+    const fetchLiveTranslation = async () => {
+      // Replace this with your actual API call
+      const liveTranslationText = await getLiveTranslation();
+      setLiveTranslation(liveTranslationText);
+    };
+  
+    fetchLiveTranslation();
+    
+    // Polling or real-time updates
+    const intervalId = setInterval(fetchLiveTranslation, 1000); // Poll every second
+    
+    return () => clearInterval(intervalId);
+  }, []);
 
   useEffect(() => {
     const initClient = async () => {
       const rtcClient = AgoraRTC.createClient({ mode: "rtc", codec: "vp8" });
 
       try {
-        await rtcClient.join(APP_ID, roomId, null, uid); // Using null for UID to let Agora generate one
+        await rtcClient.join(APP_ID, roomId, null, uid); 
         rtcClient.on("user-published", handleUserPublished);
         rtcClient.on("user-left", handleUserLeft);
         setClient(rtcClient);
-    } catch (error) {
+      } catch (error) {
         console.error("Failed to join the channel:", error);
-    }
-};
+      }
+    };
 
     initClient();
 
@@ -35,256 +65,357 @@ const NewInterviewComponent = ({ uid, displayName, roomId, client, setClient }) 
     };
   }, [uid, roomId, setClient, client]);
 
+  const getLiveTranslation = async () => {
+    // Simulate API call
+    // Replace this with actual speech-to-text and translation service calls
+    return "This is a live translation caption"; // Placeholder text
+  };
+  
+
   const joinStream = async () => {
     try {
-        const tracks = await AgoraRTC.createMicrophoneAndCameraTracks(
-            {},
-            {
-                encoderConfig: {
-                    width: { min: 640, ideal: 1920, max: 1920 },
-                    height: { min: 480, ideal: 1080, max: 1080 },
-                },
-            }
-        );
+      const tracks = await AgoraRTC.createMicrophoneAndCameraTracks(
+        {},
+        {
+          encoderConfig: {
+            width: { min: 640, ideal: 1920, max: 1920 },
+            height: { min: 480, ideal: 1080, max: 1080 },
+          },
+        }
+      );
 
+    if (tracks.length > 0) {
         setLocalTracks(tracks);
+        const micTrack = tracks[0];
+        const cameraTrack = tracks[1];
+  
+        if (!micTrack || !cameraTrack) {
+          console.error("Error: Microphone or Camera track not found!");
+          return;
+        }
 
-        const player = `
+      const player = `
                 <div className="video__container" id="user-container-${uid}">
                     <div className="video-player" id="user-${uid}"></div>
                 </div>
             `;
 
-        streamsContainerRef.current.insertAdjacentHTML("beforeend", player);
-        document.getElementById(`user-container-${uid}`).addEventListener("click", expandVideoFrame);
-
-        tracks[1].play(`user-${uid}`);
-        await client.publish([tracks[0], tracks[1]]);
-    } catch (error) {
-        console.error("Error joining stream:", error);
+      streamsContainerRef.current.insertAdjacentHTML("beforeend", player);
+      document
+        .getElementById(`user-container-${uid}`)
+        .addEventListener("click", expandVideoFrame);
+        cameraTrack.play(`user-${uid}`);
+      await client.publish([micTrack, cameraTrack]);
+    } else {
+      console.error("Error: No tracks were created!");
     }
-};
+  } catch (error) {
+    console.error("Error joining stream:", error);
+  }
+  };
 
-const handleUserPublished = async (user, mediaType) => {
+  const handleUserPublished = async (user, mediaType) => {
     try {
-        setRemoteUsers((prevUsers) => ({ ...prevUsers, [user.uid]: user }));
-        await client.subscribe(user, mediaType);
+      setRemoteUsers((prevUsers) => ({ ...prevUsers, [user.uid]: user }));
+      await client.subscribe(user, mediaType);
 
-        if (!document.getElementById(`user-container-${user.uid}`)) {
-            const player = `
+      if (!document.getElementById(`user-container-${user.uid}`)) {
+        const player = `
                     <div className="video__container" id="user-container-${user.uid}">
                         <div className="video-player" id="user-${user.uid}"></div>
                     </div>
                 `;
 
-            streamsContainerRef.current.insertAdjacentHTML("beforeend", player);
-            document.getElementById(`user-container-${user.uid}`).addEventListener("click", expandVideoFrame);
-        }
+        streamsContainerRef.current.insertAdjacentHTML("beforeend", player);
+        document
+          .getElementById(`user-container-${user.uid}`)
+          .addEventListener("click", expandVideoFrame);
+      }
 
-        if (mediaType === "video") {
-            user.videoTrack.play(`user-${user.uid}`);
-        }
+      if (mediaType === "video") {
+        user.videoTrack.play(`user-${user.uid}`);
+      }
 
-        if (mediaType === "audio") {
-            user.audioTrack.play();
-        }
+      if (mediaType === "audio") {
+        user.audioTrack.play();
+      }
     } catch (error) {
-        console.error("Error handling user publication:", error);
+      console.error("Error handling user publication:", error);
     }
-};
+  };
 
-const handleUserLeft = (user) => {
+  const handleUserLeft = (user) => {
     setRemoteUsers((prevUsers) => {
-        const updatedUsers = { ...prevUsers };
-        delete updatedUsers[user.uid];
-        return updatedUsers;
+      const updatedUsers = { ...prevUsers };
+      delete updatedUsers[user.uid];
+      return updatedUsers;
     });
 
     const item = document.getElementById(`user-container-${user.uid}`);
     if (item) {
-        item.remove();
+      item.remove();
     }
 
     if (user.uid === userIdInDisplayFrame) {
-        displayFrameRef.current.style.display = null;
-        const videoFrames = document.getElementsByClassName("video__container");
-        for (let i = 0; i < videoFrames.length; i++) {
-            videoFrames[i].style.height = "300px";
-            videoFrames[i].style.width = "300px";
-        }
+      displayFrameRef.current.style.display = null;
+      const videoFrames = document.getElementsByClassName("video__container");
+      for (let i = 0; i < videoFrames.length; i++) {
+        videoFrames[i].style.height = "300px";
+        videoFrames[i].style.width = "300px";
+      }
     }
-};
+  };
 
-const expandVideoFrame = (e) => {
+  const expandVideoFrame = (e) => {
     const target = e.currentTarget;
     const isExpanded = target.classList.contains("expanded");
 
     if (isExpanded) {
-        target.classList.remove("expanded");
-        target.style.height = "300px";
-        target.style.width = "300px";
+      target.classList.remove("expanded");
+      target.style.height = "300px";
+      target.style.width = "300px";
     } else {
-        target.classList.add("expanded");
-        target.style.height = "100%";
-        target.style.width = "100%";
-        setUserIdInDisplayFrame(target.id.replace('user-container-', ''));
+      target.classList.add("expanded");
+      target.style.height = "100%";
+      target.style.width = "100%";
+      setUserIdInDisplayFrame(target.id.replace("user-container-", ""));
+      displayFrameRef.current.style.display = "block";
+    }
+  };
+
+  const toggleMic = async (e) => {
+    try {
+        if (!localTracks[0]) {
+            console.warn("Microphone track not found!");
+            return;
+          }
+
+      let button = e.currentTarget;
+
+      if (localTracks[0].muted) {
+        await localTracks[0].setMuted(false);
+        button.classList.add("active");
+      } else {
+        await localTracks[0].setMuted(true);
+        button.classList.remove("active");
+      }
+    } catch (error) {
+      console.error("Error toggling mic:", error);
+    }
+  };
+
+  const toggleCamera = async (e) => {
+    try {
+        if (!localTracks[1]) {
+            console.warn("Camera track not found!");
+            return;
+          }
+      let button = e.currentTarget;
+
+      if (localTracks[1].muted) {
+        await localTracks[1].setMuted(false);
+        button.classList.add("active");
+      } else {
+        await localTracks[1].setMuted(true);
+        button.classList.remove("active");
+      }
+    } catch (error) {
+      console.error("Error toggling camera:", error);
+    }
+  };
+
+  const toggleScreen = async (e) => {
+    try {
+      let screenButton = e.currentTarget;
+      let cameraButton = document.getElementById("camera-btn");
+
+      if (!sharingScreen) {
+        setSharingScreen(true);
+        screenButton.classList.add("active");
+        cameraButton.classList.remove("active");
+        cameraButton.style.display = "none";
+
+        const screenTracks = await AgoraRTC.createScreenVideoTrack();
+        setLocalScreenTracks(screenTracks);
+
+        document.getElementById(`user-container-${uid}`).remove();
         displayFrameRef.current.style.display = "block";
-    }
-};
 
-const toggleMic = async (e) => {
-    try {
-        let button = e.currentTarget;
-
-        if (localTracks[0].muted) {
-            await localTracks[0].setMuted(false);
-            button.classList.add("active");
-        } else {
-            await localTracks[0].setMuted(true);
-            button.classList.remove("active");
-        }
-    } catch (error) {
-        console.error("Error toggling mic:", error);
-    }
-};
-
-const toggleCamera = async (e) => {
-    try {
-        let button = e.currentTarget;
-
-        if (localTracks[1].muted) {
-            await localTracks[1].setMuted(false);
-            button.classList.add("active");
-        } else {
-            await localTracks[1].setMuted(true);
-            button.classList.remove("active");
-        }
-    } catch (error) {
-        console.error("Error toggling camera:", error);
-    }
-};
-
-
-const toggleScreen = async (e) => {
-    try {
-        let screenButton = e.currentTarget;
-        let cameraButton = document.getElementById("camera-btn");
-
-        if (!sharingScreen) {
-            setSharingScreen(true);
-            screenButton.classList.add("active");
-            cameraButton.classList.remove("active");
-            cameraButton.style.display = "none";
-
-            const screenTracks = await AgoraRTC.createScreenVideoTrack();
-            setLocalScreenTracks(screenTracks);
-
-            document.getElementById(`user-container-${uid}`).remove();
-            displayFrameRef.current.style.display = "block";
-
-            const player = `
+        const player = `
                     <div className="video__container" id="user-container-${uid}">
                         <div className="video-player" id="user-${uid}"></div>
                     </div>
                 `;
-            displayFrameRef.current.insertAdjacentHTML("beforeend", player);
-            document.getElementById(`user-container-${uid}`).addEventListener("click", expandVideoFrame);
+        displayFrameRef.current.insertAdjacentHTML("beforeend", player);
+        document
+          .getElementById(`user-container-${uid}`)
+          .addEventListener("click", expandVideoFrame);
 
-            screenTracks.play(`user-${uid}`);
+        screenTracks.play(`user-${uid}`);
 
-            await client.unpublish([localTracks[1]]);
-            await client.publish([screenTracks]);
-
-            const videoFrames = document.getElementsByClassName("video__container");
-            for (let i = 0; i < videoFrames.length; i++) {
-                if (videoFrames[i].id !== userIdInDisplayFrame) {
-                    videoFrames[i].style.height = "100px";
-                    videoFrames[i].style.width = "100px";
-                }
-            }
-        } else {
-            setSharingScreen(false);
-            cameraButton.style.display = "block";
-            document.getElementById(`user-container-${uid}`).remove();
-            await client.unpublish([localScreenTracks]);
-            switchToCamera();
-        }
-    } catch (error) {
-        console.error("Error toggling screen share:", error);
-    }
-};
-
-const switchToCamera = async () => {
-    if (localScreenTracks) {
-        localScreenTracks.stop();
-        localScreenTracks.close();
-        setLocalScreenTracks(null);
-
-        const [microphoneTrack, cameraTrack] = await AgoraRTC.createMicrophoneAndCameraTracks();
-        setLocalTracks([microphoneTrack, cameraTrack]);
-        await client.publish([cameraTrack, microphoneTrack]);
+        await client.unpublish([localTracks[1]]);
+        await client.publish([screenTracks]);
 
         const videoFrames = document.getElementsByClassName("video__container");
         for (let i = 0; i < videoFrames.length; i++) {
-            if (videoFrames[i].id !== `user-container-${uid}`) {
-                videoFrames[i].style.height = "300px";
-                videoFrames[i].style.width = "300px";
-            }
+          if (videoFrames[i].id !== userIdInDisplayFrame) {
+            videoFrames[i].style.height = "100px";
+            videoFrames[i].style.width = "100px";
+          }
         }
+      } else {
+        setSharingScreen(false);
+        cameraButton.style.display = "block";
+        document.getElementById(`user-container-${uid}`).remove();
+        await client.unpublish([localScreenTracks]);
+        switchToCamera();
+      }
+    } catch (error) {
+      console.error("Error toggling screen share:", error);
     }
-};
+  };
 
-const leaveStream = async (e) => {
+  const switchToCamera = async () => {
+    if (localScreenTracks) {
+      localScreenTracks.stop();
+      localScreenTracks.close();
+      setLocalScreenTracks(null);
+
+      const [microphoneTrack, cameraTrack] =
+        await AgoraRTC.createMicrophoneAndCameraTracks();
+      setLocalTracks([microphoneTrack, cameraTrack]);
+      await client.publish([cameraTrack, microphoneTrack]);
+
+      const videoFrames = document.getElementsByClassName("video__container");
+      for (let i = 0; i < videoFrames.length; i++) {
+        if (videoFrames[i].id !== `user-container-${uid}`) {
+          videoFrames[i].style.height = "300px";
+          videoFrames[i].style.width = "300px";
+        }
+      }
+    }
+  };
+
+  const leaveStream = async (e) => {
     // e.preventDefault();
 
     try {
-        document.getElementById("join-btn").style.display = "block";
-        document.getElementsByClassName("stream__actions")[0].style.display = "none";
+      document.getElementById("join-btn").style.display = "block";
+      document.getElementsByClassName("stream__actions")[0].style.display =
+        "none";
 
-        localTracks.forEach((track) => {
-            track.stop();
-            track.close();
-        });
+      localTracks.forEach((track) => {
+        track.stop();
+        track.close();
+      });
 
-        await client.unpublish(localTracks);
+      await client.unpublish(localTracks);
 
-        if (localScreenTracks) {
-            await client.unpublish([localScreenTracks]);
-        }
+      if (localScreenTracks) {
+        await client.unpublish([localScreenTracks]);
+      }
 
-        document.getElementById(`user-container-${uid}`).remove();
+      document.getElementById(`user-container-${uid}`).remove();
 
-        // channel.sendMessage({ text: JSON.stringify({ type: "user_left", uid }) });
+      // channel.sendMessage({ text: JSON.stringify({ type: "user_left", uid }) });
 
-        // If you have a channel object, replace `channel` with the appropriate reference
-        // channel.sendMessage({ text: JSON.stringify({ type: "user_left", uid }) });
+      // If you have a channel object, replace `channel` with the appropriate reference
+      // channel.sendMessage({ text: JSON.stringify({ type: "user_left", uid }) });
     } catch (error) {
-        console.error("Error leaving stream:", error);
+      console.error("Error leaving stream:", error);
     }
-};
+  };
+
+  const handleSendMessage = () => {
+    if (inputText.trim()) {
+      const newMessage = { text: inputText, sender: "self" };
+      const translatedMessage = translateMessage(inputText, "ja"); // Translate to Japanese
+
+      setChatMessages([...chatMessages, newMessage]);
+      setTranslation([...translation, translatedMessage]);
+      setInputText("");
+    }
+  };
+
+  //   const translateMessage = async (text, targetLang) => {
+  //     try {
+  //       const response = await axios.post(
+  //         `https://translation.googleapis.com/language/translate/v2`,
+  //         {
+  //           q: text,
+  //           target: targetLang,
+  //           key: GOOGLE_TRANSLATE_API_KEY,
+  //         }
+  //       );
+
+  //       const translatedText = response.data.data.translations[0].translatedText;
+  //       return translatedText;
+  //     } catch (error) {
+  //       console.error("Error translating message:", error);
+  //       return text; // Return original text if translation fails
+  //     }
+  //   };
+
+  //   const toggleTranslation = async () => {
+  //     const translated = await Promise.all(
+  //       chatMessages.map(async (msg) => {
+  //         const translatedText = await translateMessage(msg.text, "en");
+  //         return { ...msg, text: translatedText };
+  //       })
+  //     );
+
+  //     setTranslation(translated);
+  //   };
+
+  const translateMessage = (text, targetLang) => {
+    // Simple translation dictionary for demonstration
+    const translations = {
+      Hello: "こんにちは",
+      こんにちは: "Hello",
+      "How are you?": "お元気ですか？",
+      "お元気ですか？": "How are you?",
+    };
+
+    return translations[text] || text;
+  };
+
+  const toggleTranslation = () => {
+    const translated = chatMessages.map((msg) => {
+      return {
+        ...msg,
+        text: translateMessage(msg.text, "en"),
+      };
+    });
+
+    setTranslation(translated);
+  };
 
   return (
     <div className="interview-container">
-      <div className="interview-main-content">
+
+      <div className="interview-main-panel">
         <h2>New Interview</h2>
 
-        <div className="interview-conntainer">
-            <div className="video__container" ref={streamsContainerRef}></div>
-            <div className="video__container" ref={displayFrameRef} style={{ display: 'none' }}></div>
-            <div className="stream__actions">
-                <button id="mic-btn" onClick={toggleMic}>Toggle Mic</button>
-                <button id="camera-btn" onClick={toggleCamera}>Toggle Camera</button>
-                <button id="screen-btn" onClick={toggleScreen}>Toggle Screen</button>
-                <button id="leave-btn" onClick={leaveStream}>Leave</button>
-            </div>
-            <div id="display-frame" ref={displayFrameRef} className="video__container"></div>
+        <div className="video-container">
+          <div className="video__container" ref={streamsContainerRef}></div>
+          <div
+            className="video__container"
+            ref={displayFrameRef}
+            style={{ display: "none" }}
+          ></div>
+
+          <div
+            id="display-frame"
+            ref={displayFrameRef}
+            className="video__container"
+          ></div>
         </div>
 
-        <div className="interview-header">
-        <p className="translation-results">
-            Translation Results, Translation Results, Translation Results,
-            Translation Results, Translation Results.
-          </p>
+        <div className="live-translate-panel">
+          <h4>Translation Results</h4>
+          <div className="live-translation">
+          <p>{liveTranslation}</p>
+          </div>
         </div>
 
         <div className="checklist-section">
@@ -308,22 +439,66 @@ const leaveStream = async (e) => {
             <button className="edit-btn">✏️</button>
           </div>
         </div>
+
+        <div className="stream__actions">
+          <button id="mic-btn" onClick={toggleMic}>
+            Toggle Mic
+          </button>
+          <button id="camera-btn" onClick={toggleCamera}>
+            Toggle Camera
+          </button>
+          <button id="screen-btn" onClick={toggleScreen}>
+            Toggle Screen
+          </button>
+          <button id="leave-btn" onClick={leaveStream}>
+            Leave
+          </button>
+          <button id="leave-btn" onClick={joinStream}>
+            Join
+          </button>
+        </div>
       </div>
 
       <div className="interview-chat-panel">
         <div className="tabs">
-          <button className="tab active">Translation</button>
-          <button className="tab">Chat</button>
-        </div>
-        <div className="chat-content">
-          <div className="chat-bubble other">The other party's statement</div>
-          <div className="chat-bubble self">Your statement</div>
-        </div>
-        <div className="chat-input">
-          <input type="text" placeholder="Enter text" />
-          <button className="send-btn">➤</button>
+          <div className="trans-tab">
+            <h3>Translation</h3>
+            <div className="translation-resultss">
+              {translation.map((msg, index) => (
+                <div key={index} className="translation-text">
+                  {msg}
+                </div>
+              ))}
+            </div>
+          </div>
+          <div className="chat-tab">
+            <h3>Chat</h3>
+            <div className="chat-content">
+              {chatMessages.map((msg, index) => (
+                <div key={index} className={`chat-bubble ${msg.sender}`}>
+                  {msg.text}
+                </div>
+              ))}
+            </div>
+            <div className="chat-input">
+              <input
+                type="text"
+                placeholder="Enter text"
+                value={inputText}
+                onChange={(e) => setInputText(e.target.value)}
+                ref={chatInputRef}
+              />
+              <button className="send-btn" onClick={handleSendMessage}>
+                ➤
+              </button>
+              <button className="translate-btn" onClick={toggleTranslation}>
+                🌐 Translate
+              </button>
+            </div>
+          </div>
         </div>
       </div>
+
     </div>
   );
 };

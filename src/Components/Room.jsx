@@ -19,6 +19,7 @@ const Room = () => {
             </aside>
             <div className="content">
                 <Routes>
+                    <Route path="/" element={<InterviewListComponent />} />
                     <Route path="new-interview" element={<NewInterviewComponent />} />
                     <Route path="interview-list" element={<InterviewListComponent />} />
                 </Routes>

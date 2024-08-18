@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import './CSS/Lobby.css';
+import { v4 as uuidv4 } from 'uuid';
 
 const Lobby = () => {
     const [name, setName] = useState('');
@@ -16,11 +17,11 @@ const Lobby = () => {
     };
 
     const handleCreateRoom = () => {
-        if (roomName && name) {
-            // Redirect to the room creation page with the room name
-            navigate(`/room/${roomName}`, { state: { userName: name } });
+        const newRoomName = roomName || uuidv4(); // Generate a unique room name if not provided
+        if (name) {
+            navigate(`/room/${newRoomName}`, { state: { userName: name } });
         } else {
-            alert('Please enter both room name and your name.');
+            alert('Please enter your name');
         }
     };
 
@@ -29,7 +30,7 @@ const Lobby = () => {
             <header className="lobby-header">
                 <div className="logo">Site Logo</div>
                 <div className="title">Mumble</div>
-                <button className="create-room-btn">Create Room</button>
+                <button className="create-room-btn" onClick={handleCreateRoom}>Create Room</button>
             </header>
             <div className="lobby-form">
                 <h2>🔥 Create or Join Room</h2>
@@ -52,8 +53,7 @@ const Lobby = () => {
                 />
             </div>
             <div className="buttons">
-                <button onClick={handleCreateRoom}>Create Room</button>
-                <button onClick={handleJoinRoom}>Join Room</button>
+            <button onClick={handleJoinRoom}>Go to Room ➔</button>
             </div>
             </div>
         </div>
