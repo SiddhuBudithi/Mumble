@@ -2,9 +2,9 @@
     display: flex;
     flex-direction: column;
     align-items: center;
-    justify-content: center;
+    justify-content: flex-start;
     height: 100vh;
-    background-color: #121212;
+    background: linear-gradient(135deg, #dcc3c9, #ffaed1);;
     color: #fff;
 }
 
@@ -13,8 +13,11 @@
     display: flex;
     justify-content: space-between;
     align-items: center;
-    padding: 20px;
-    background-color: #202020;
+    padding: 10px;
+    background: linear-gradient(90deg, #e4007f, #7378ae);
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+    border-radius: 0 0 10px 10px;
+    margin-bottom: 60px;
 }
 
 .logo {
@@ -28,19 +31,27 @@
 
 .create-room-btn {
     background-color: #6c5ce7;
-    border: none;
+    border: 1px solid #fff;
     padding: 10px 20px;
     color: #fff;
     cursor: pointer;
     border-radius: 5px;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
+    transition: background-color 0.3s, box-shadow 0.3s;
+    margin-right: 35px;
+}
+.create-room-btn:hover {
+    background-color: #a29bfe;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.3);
 }
 
 .lobby-form {
     background-color: #2d2d2d;
-    padding: 40px;
+    padding: 20px;
     border-radius: 10px;
     text-align: center;
     min-width: 500px;
+    max-width: 100%;
 }
 
 .lobby-form h2 {

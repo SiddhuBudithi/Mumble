@@ -1,7 +1,7 @@
 import React from 'react';
 import { Routes, Route, Link, useParams, useResolvedPath } from 'react-router-dom';
 import InterviewListComponent from './InterviewListComponent';
-import NewInterviewComponent from './NewInterviewComponent';
+import NewInterviewComponentt from './NewInterviewComponentt';
 import './CSS/Room.css';
 
 const Room = () => {
@@ -20,7 +20,7 @@ const Room = () => {
             <div className="content">
                 <Routes>
                     <Route path="/" element={<InterviewListComponent />} />
-                    <Route path="new-interview" element={<NewInterviewComponent />} />
+                    <Route path="new-interview" element={<NewInterviewComponentt />} />
                     <Route path="interview-list" element={<InterviewListComponent />} />
                 </Routes>
             </div>
