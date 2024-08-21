@@ -36,18 +36,20 @@
   overflow: hidden;
   transition: width 0.3s, height 0.3s;
   height: 450px;
-  width: 100%;
+    width: 100%;
   margin-bottom: 10px;
 }
 
 .video__container.expanded {
   width: 100%;
-  height: 100%;
+  height: calc(100vh - 20px);
 }
 
 .video-player {
   width: 100%;
   height: 100%;
+  background-color: transparent; 
+  z-index: 1;
 }
 
 .live-translation-panel {
@@ -255,6 +257,7 @@
 .stream__actions button#leave-btn:hover {
   background-color: #c82333;
 }
+
 
 #display-frame {
   display: none;
